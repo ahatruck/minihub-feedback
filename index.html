@@ -405,22 +405,25 @@
                 timestamp: new Date().toLocaleString('vi-VN')
             };
 
-            // GOOGLE SHEETS INTEGRATION
-            // Replace with your Web App URL after deploying Apps Script
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxTaugloOBBw9daWuAzuwhvuS9S44gT898E5xHz7r7xU8-47xzwiKYsNkkvWwg8HrZy/exec';
+            // SECURITY LEVEL 2: TOKEN & OBFUSCATION
+            // Mã hóa Base64 URL để tránh bot quét trực tiếp
+            const ENCODED_URL = 'aHR0cHM6Ly9zY3JpcHQuZ29vZ2xlLmNvbS9tYWNyb3Mvcy9BS2Z5Y2J4VGF1Z2xvT0JCdzlkYVd1QXp1d2h2dVM5UzQ0Z1Q4OThFNXhIejdyN3hVOC00N3h6d2lLWXNOa2t2V2c4SHJaeS9leGVj'; 
+            const SECRET_TOKEN = 'Ahamove_truck_secure'; // Đồng bộ với mã trong Apps Script
 
             try {
-                // If SCRIPT_URL is provided, send real data. Otherwise, simulate.
-                if (SCRIPT_URL !== 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+                const SCRIPT_URL = atob(ENCODED_URL);
+                payload.token = SECRET_TOKEN; // Thêm token vào dữ liệu gửi đi
+
+                if (SCRIPT_URL.includes('google.com')) {
                     await fetch(SCRIPT_URL, {
                         method: 'POST',
-                        mode: 'no-cors', // Essential for Apps Script
+                        mode: 'no-cors',
                         cache: 'no-cache',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                 } else {
-                    console.log('No Script URL provided. Simulation mode:', payload);
+                    console.log('No URL configured. Simulation mode:', payload);
                     await new Promise(resolve => setTimeout(resolve, 1500));
                 }
 
