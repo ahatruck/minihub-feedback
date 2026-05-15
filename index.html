@@ -168,6 +168,19 @@
             box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1);
         }
 
+        .error-message {
+            color: var(--error);
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 4px;
+            display: none;
+        }
+
+        input.invalid {
+            border-color: var(--error);
+            background-color: #fff1f2;
+        }
+
         .btn-submit {
             width: 100%;
             background: var(--primary);
@@ -302,8 +315,9 @@
             <input type="hidden" id="category" name="category">
 
             <div class="form-group">
-                <label for="driver_id">Số điện thoại / ID Tài xế</label>
-                <input type="text" id="driver_id" placeholder="VD: 0912345678" required>
+                <label for="driver_id">Số điện thoại Tài xế (Bắt đầu bằng 84)</label>
+                <input type="text" id="driver_id" placeholder="VD: 84912345678" required maxlength="11">
+                <div id="phone-error" class="error-message">Số điện thoại phải bắt đầu bằng 84 và có đúng 11 chữ số.</div>
             </div>
 
             <div class="form-group" id="order-id-group" style="display: none;">
@@ -351,18 +365,17 @@
     <script>
         const subCategories = {
             'REGISTRATION': [
-                'Không hiện vùng hoạt động mong muốn',
-                'Lỗi khi bấm nút Đăng ký',
-                'Muốn hủy ca gấp',
-                'Lỗi "Trùng lịch" sai thực tế',
-                'Khác...'
+                'Không đăng ký được ca',
+                'Không hiển thị vùng hoạt động',
+                'Không thấy ca để đăng ký',
+                'Không chọn được vùng hoạt động',
+                'Không điểm danh được',
+                'Khác'
             ],
             'ORDER': [
-                'Không nổ đơn dù đã ở trong Zone',
-                'Đơn hàng bị treo không hoàn thành được',
-                'Sai tiền cước / Khuyến mãi',
-                'Lỗi bản đồ / Định vị',
-                'Khác...'
+                'Không nổ đơn dù đã ở trong zone và điểm danh',
+                'Không kịp nhận đơn gợi ý',
+                'Đơn gợi ý quá xa'
             ]
         };
 
@@ -391,6 +404,23 @@
 
         async function submitFeedback(event) {
             event.preventDefault();
+            
+            const phoneInput = document.getElementById('driver_id');
+            const phoneError = document.getElementById('phone-error');
+            const phoneValue = phoneInput.value.trim();
+
+            // Ràng buộc: Bắt đầu bằng 84 và có 11 chữ số
+            const phoneRegex = /^84\d{9}$/;
+            if (!phoneRegex.test(phoneValue)) {
+                phoneInput.classList.add('invalid');
+                phoneError.style.display = 'block';
+                phoneInput.focus();
+                return;
+            } else {
+                phoneInput.classList.remove('invalid');
+                phoneError.style.display = 'none';
+            }
+
             const btn = event.target.querySelector('button');
             const originalText = btn.textContent;
             btn.textContent = 'Đang gửi...';
